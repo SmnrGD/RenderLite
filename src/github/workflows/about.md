@@ -4,15 +4,27 @@ A small performance mod for Geometry Dash (Windows).
 
 ## Features
 
-- **High priority:** Automatically sets the game's process priority to High, so Windows gives it more CPU time. Same as Task Manager > Details > Set priority > High, but done for you on every launch.
-- **Disable power throttling:** Stops Windows from slowing the game down to save power. Most useful on laptops.
-- **Precise timer (1 ms):** Requests a 1 ms system timer, which can make frame pacing more even.
+Every feature has an adjustable strength. The strongest option is the default.
+
+- **Process priority:** Controls how much CPU time Windows gives the game.
+  - Normal: Windows default
+  - Above normal: medium
+  - **High: strongest**
+- **Power throttling:** Stops Windows from slowing the game down to save power. Most useful on laptops.
+  - Windows default: no change
+  - CPU throttling off: medium
+  - **CPU and timer throttling off: strongest**
+- **Timer resolution:** Controls how precisely Windows times frames, which can make frame pacing more even.
+  - Windows default: about 15 ms
+  - 2 ms: medium
+  - **1 ms: strongest**
 
 ## Settings
 
-Every feature can be turned on or off in the mod settings (Geode menu > Mods > RenderLite > Settings).
+Change them in the mod settings (Geode menu > Mods > RenderLite > Settings).
 
 ## Notes
 
 - All options only work on Windows.
 - These options do not raise your FPS directly. They help most when other programs are using your CPU, or when Windows is limiting the game.
+- The timer part of power throttling mainly matters on Windows 11.
