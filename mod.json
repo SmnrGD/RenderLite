@@ -1,0 +1,31 @@
+{
+	"geode": "5.11.2",
+	"gd": {
+		"win": "2.2081"
+	},
+	"id": "kayttaja.renderlite",
+	"name": "RenderLite",
+	"version": "v1.0.9",
+	"developer": "SmnrGd",
+	"description": "High CPU priority, no power throttling and a precise timer for Geometry Dash on Windows.",
+	"settings": {
+		"high-priority": {
+			"name": "High priority (Windows)",
+			"description": "Sets the game's process priority to High automatically. Turn off to return to Normal.",
+			"type": "bool",
+			"default": true
+		},
+		"disable-throttling": {
+			"name": "Disable power throttling (Windows)",
+			"description": "Stops Windows from limiting the game's CPU speed to save power. Turn off to let Windows decide again.",
+			"type": "bool",
+			"default": true
+		},
+		"precise-timer": {
+			"name": "Precise timer (Windows)",
+			"description": "Requests a 1 ms system timer for more even frame pacing. Turn off to use the Windows default.",
+			"type": "bool",
+			"default": true
+		}
+	}
+}
