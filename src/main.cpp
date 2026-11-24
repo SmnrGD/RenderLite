@@ -1,4 +1,5 @@
 #include <Geode/Geode.hpp>
+#include <string>
 
 #ifdef GEODE_IS_WINDOWS
 #include <Windows.h>
@@ -17,16 +18,16 @@ using SetProcessInformationFn = BOOL(WINAPI*)(HANDLE, int, LPVOID, DWORD);
 using TimePeriodFn = UINT(WINAPI*)(UINT);
 #endif
 
-static void applyPriority(bool high) {
+static void applyPriority(std::string const& level) {
 #ifdef GEODE_IS_WINDOWS
-    SetPriorityClass(
-        GetCurrentProcess(),
-        high ? HIGH_PRIORITY_CLASS : NORMAL_PRIORITY_CLASS
-    );
+    DWORD cls = NORMAL_PRIORITY_CLASS;
+    if (level == "High") cls = HIGH_PRIORITY_CLASS;
+    else if (level == "Above normal") cls = ABOVE_NORMAL_PRIORITY_CLASS;
+    SetPriorityClass(GetCurrentProcess(), cls);
 #endif
 }
 
-static void applyThrottling(bool disable) {
+static void applyThrottling(std::string const& mode) {
 #ifdef GEODE_IS_WINDOWS
     HMODULE kernel = GetModuleHandleA("kernel32.dll");
     if (!kernel) return;
@@ -34,22 +35,36 @@ static void applyThrottling(bool disable) {
     auto fn = reinterpret_cast<SetProcessInformationFn>(
         reinterpret_cast<void*>(GetProcAddress(kernel, "SetProcessInformation"))
     );
+    // Older Windows versions do not have this function, so do nothing there
     if (!fn) return;
 
     RLPowerThrottlingState state{};
     state.Version = 1;
-    state.ControlMask = disable ? 0x1 : 0x0;
     state.StateMask = 0x0;
+
+    if (mode == "CPU and timer throttling off") {
+        state.ControlMask = 0x1 | 0x4; // execution speed + timer resolution
+    } else if (mode == "CPU throttling off") {
+        state.ControlMask = 0x1;       // execution speed only
+    } else {
+        state.ControlMask = 0x0;       // let Windows decide
+    }
 
     // 4 = ProcessPowerThrottling
     fn(GetCurrentProcess(), 4, &state, sizeof(state));
 #endif
 }
 
-static bool s_timerActive = false;
+static int s_timerPeriod = 0;
 
-static void applyTimer(bool precise) {
+static void applyTimer(std::string const& choice) {
 #ifdef GEODE_IS_WINDOWS
+    int wanted = 0;
+    if (choice == "1 ms") wanted = 1;
+    else if (choice == "2 ms") wanted = 2;
+
+    if (wanted == s_timerPeriod) return;
+
     HMODULE winmm = LoadLibraryA("winmm.dll");
     if (!winmm) return;
 
@@ -61,29 +76,25 @@ static void applyTimer(bool precise) {
     );
     if (!begin || !end) return;
 
-    if (precise && !s_timerActive) {
-        begin(1);
-        s_timerActive = true;
-    } else if (!precise && s_timerActive) {
-        end(1);
-        s_timerActive = false;
-    }
+    if (s_timerPeriod != 0) end(static_cast<UINT>(s_timerPeriod));
+    if (wanted != 0) begin(static_cast<UINT>(wanted));
+    s_timerPeriod = wanted;
 #endif
 }
 
 $on_mod(Loaded) {
     auto mod = Mod::get();
-    applyPriority(mod->getSettingValue<bool>("high-priority"));
-    applyThrottling(mod->getSettingValue<bool>("disable-throttling"));
-    applyTimer(mod->getSettingValue<bool>("precise-timer"));
+    applyPriority(mod->getSettingValue<std::string>("priority-level"));
+    applyThrottling(mod->getSettingValue<std::string>("throttling-mode"));
+    applyTimer(mod->getSettingValue<std::string>("timer-resolution"));
 
-    listenForSettingChanges<bool>("high-priority", [](bool value) {
+    listenForSettingChanges<std::string>("priority-level", [](std::string value) {
         applyPriority(value);
     });
-    listenForSettingChanges<bool>("disable-throttling", [](bool value) {
+    listenForSettingChanges<std::string>("throttling-mode", [](std::string value) {
         applyThrottling(value);
     });
-    listenForSettingChanges<bool>("precise-timer", [](bool value) {
+    listenForSettingChanges<std::string>("timer-resolution", [](std::string value) {
         applyTimer(value);
     });
 }
