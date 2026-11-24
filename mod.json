@@ -7,25 +7,28 @@
 	"name": "RenderLite",
 	"version": "v1.0.9",
 	"developer": "SmnrGd",
-	"description": "High CPU priority, no power throttling and a precise timer for Geometry Dash on Windows.",
+	"description": "Adjustable CPU priority, power throttling and timer settings for Geometry Dash on Windows.",
 	"settings": {
-		"high-priority": {
-			"name": "High priority (Windows)",
-			"description": "Sets the game's process priority to High automatically. Turn off to return to Normal.",
-			"type": "bool",
-			"default": true
+		"priority-level": {
+			"name": "Process priority (Windows)",
+			"description": "How much CPU time Windows gives the game. Strongest: High. Options: Normal (Windows default), Above normal (medium), High (strongest).",
+			"type": "string",
+			"default": "High",
+			"one-of": ["Normal", "Above normal", "High"]
 		},
-		"disable-throttling": {
-			"name": "Disable power throttling (Windows)",
-			"description": "Stops Windows from limiting the game's CPU speed to save power. Turn off to let Windows decide again.",
-			"type": "bool",
-			"default": true
+		"throttling-mode": {
+			"name": "Power throttling (Windows)",
+			"description": "Stops Windows from slowing the game down to save power. Strongest: CPU and timer throttling off. Options: Windows default (no change), CPU throttling off (medium), CPU and timer throttling off (strongest).",
+			"type": "string",
+			"default": "CPU and timer throttling off",
+			"one-of": ["Windows default", "CPU throttling off", "CPU and timer throttling off"]
 		},
-		"precise-timer": {
-			"name": "Precise timer (Windows)",
-			"description": "Requests a 1 ms system timer for more even frame pacing. Turn off to use the Windows default.",
-			"type": "bool",
-			"default": true
+		"timer-resolution": {
+			"name": "Timer resolution (Windows)",
+			"description": "How precisely Windows times frames, which can make frame pacing more even. Strongest: 1 ms. Options: Windows default (about 15 ms), 2 ms (medium), 1 ms (strongest).",
+			"type": "string",
+			"default": "1 ms",
+			"one-of": ["Windows default", "2 ms", "1 ms"]
 		}
 	}
 }
