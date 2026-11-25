@@ -5,30 +5,70 @@
 	},
 	"id": "kayttaja.renderlite",
 	"name": "RenderLite",
-	"version": "v1.0.9",
-	"developer": "SmnrGd",
-	"description": "Adjustable CPU priority, power throttling and timer settings for Geometry Dash on Windows.",
+	"version": "v1.1.0",
+	"developer": "SmnrGD",
+	"description": "Performance toolkit for Geometry Dash: process priority, power plan, focus mode, GPU preference, fast loading and anti-crash.",
+	"repository": "https://github.com/mikhailrasanen1304-dot/RenderLite",
 	"settings": {
 		"priority-level": {
-			"name": "Process priority (Windows)",
-			"description": "How much CPU time Windows gives the game. Strongest: High. Options: Normal (Windows default), Above normal (medium), High (strongest).",
+			"name": "Process priority",
+			"description": "How much CPU time Windows gives the game.\n\nStrongest: High.\nOptions: Normal (default), Above normal (medium), High (strongest).",
 			"type": "string",
 			"default": "High",
 			"one-of": ["Normal", "Above normal", "High"]
 		},
 		"throttling-mode": {
-			"name": "Power throttling (Windows)",
-			"description": "Stops Windows from slowing the game down to save power. Strongest: CPU and timer throttling off. Options: Windows default (no change), CPU throttling off (medium), CPU and timer throttling off (strongest).",
+			"name": "Power throttling",
+			"description": "Stops Windows from slowing the game down to save power. Most useful on laptops.\n\nStrongest: CPU and timer throttling off.\nOptions: Windows default (no change), CPU throttling off (medium), CPU and timer throttling off (strongest).",
 			"type": "string",
 			"default": "CPU and timer throttling off",
 			"one-of": ["Windows default", "CPU throttling off", "CPU and timer throttling off"]
 		},
 		"timer-resolution": {
-			"name": "Timer resolution (Windows)",
-			"description": "How precisely Windows times frames, which can make frame pacing more even. Strongest: 1 ms. Options: Windows default (about 15 ms), 2 ms (medium), 1 ms (strongest).",
+			"name": "Timer resolution",
+			"description": "How precisely Windows times frames, which can make frame pacing more even.\n\nStrongest: 1 ms.\nOptions: Windows default (about 15 ms), 2 ms (medium), 1 ms (strongest).",
 			"type": "string",
 			"default": "1 ms",
 			"one-of": ["Windows default", "2 ms", "1 ms"]
+		},
+		"power-plan": {
+			"name": "Power plan",
+			"description": "Switches the Windows power plan while the game is running. Your old plan is restored when the game closes.\n\nStrongest: Ultimate performance (falls back to High performance if your PC does not have it).\nOptions: No change (default), Balanced, High performance, Ultimate performance (strongest).",
+			"type": "string",
+			"default": "No change",
+			"one-of": ["No change", "Balanced", "High performance", "Ultimate performance"]
+		},
+		"background-priority": {
+			"name": "Background apps",
+			"description": "Lowers the priority of your other running programs while the game is running, so the game gets most of the CPU. They are restored when the game closes. Programs started after the game opens are handled when you return to the main menu.\n\nStrongest: Strongest.\nOptions: Off (default), Medium (below normal), Strongest (idle priority).",
+			"type": "string",
+			"default": "Off",
+			"one-of": ["Off", "Medium", "Strongest"]
+		},
+		"focus-mode": {
+			"name": "Focus mode",
+			"description": "Turns off Windows notification pop-ups while the game is running and restores them when it closes. Windows itself does not let mods switch its Focus assist on, so this only hides the pop-ups.",
+			"type": "bool",
+			"default": false
+		},
+		"gpu-preference": {
+			"name": "GPU preference",
+			"description": "Tells Windows which graphics card the game should use. Mostly useful on laptops with two graphics cards. Restart Geometry Dash after changing this setting.\n\nStrongest: High performance GPU.\nOptions: No change (default), High performance GPU (strongest), Windows default (removes the override).",
+			"type": "string",
+			"default": "No change",
+			"one-of": ["No change", "High performance GPU", "Windows default"]
+		},
+		"fast-loading": {
+			"name": "Fast loading",
+			"description": "Speeds up the Geometry Dash loading screen by letting it run at the highest possible frame rate. It works best when V-Sync is off in the game's graphics settings. It cannot speed up Geode's own loading. Restart Geometry Dash after changing this setting.",
+			"type": "bool",
+			"default": true
+		},
+		"anti-crash": {
+			"name": "Anti-crash (experimental)",
+			"description": "Tries to catch errors during gameplay and skip the broken frame instead of closing the game. It cannot stop every crash, and the game may behave oddly after an error. Turn it off if you see problems.",
+			"type": "bool",
+			"default": true
 		}
 	}
 }
