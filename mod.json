@@ -9,6 +9,7 @@
 	"developer": "SmnrGD",
 	"description": "Performance toolkit for Geometry Dash: process priority, power plan, focus mode, GPU preference, fast loading and anti-crash.",
 	"repository": "https://github.com/mikhailrasanen1304-dot/RenderLite",
+	"tags": ["performance", "utility", "universal"],
 	"settings": {
 		"priority-level": {
 			"name": "Process priority",
