@@ -508,23 +508,3 @@ $on_mod(Loaded) {
     listenForSettingChanges<std::string>("priority-level", [](std::string value) {
         applyPriority(value);
     });
-    listenForSettingChanges<std::string>("throttling-mode", [](std::string value) {
-        applyThrottling(value);
-    });
-    listenForSettingChanges<std::string>("timer-resolution", [](std::string value) {
-        applyTimer(value);
-    });
-    listenForSettingChanges<std::string>("power-plan", [](std::string value) {
-        applyPowerPlan(value);
-    });
-    listenForSettingChanges<std::string>("background-priority", [](std::string value) {
-        applyBackground(value, true);
-    });
-    listenForSettingChanges<bool>("focus-mode", [](bool value) {
-        applyFocusMode(value);
-    });
-    listenForSettingChanges<std::string>("gpu-preference", [](std::string value) {
-        applyGpuPreference(value);
-    });
-#endif
-}
