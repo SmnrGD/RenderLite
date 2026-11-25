@@ -14,7 +14,7 @@ Source and updates: [github.com/mikhailrasanen1304-dot/RenderLite](https://githu
 - **Power plan:** switch between Balanced, High performance and Ultimate performance while you play. <cg>Strongest: Ultimate performance.</c> Your old plan comes back when the game closes.
 - **Background apps:** lowers the priority of your other programs so the game gets most of the CPU. <cg>Strongest: Strongest.</c> They are restored when the game closes.
 - **Focus mode:** hides Windows notification pop-ups while you play.
-- **GPU preference:** picks which graphics card the game uses. <cg>Strongest: High performance GPU.</c> <cy>Restart required.</cy>
+- **GPU preference:** picks which graphics card the game uses. <cg>Strongest: High performance GPU.</c> <cy>Restart required.</c>
 
 ## <cg>Other settings</c>
 
