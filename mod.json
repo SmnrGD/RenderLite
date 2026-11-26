@@ -69,7 +69,7 @@
 			"name": "Anti-crash (experimental)",
 			"description": "Tries to catch errors during gameplay and skip the broken frame instead of closing the game. It cannot stop every crash, and the game may behave oddly after an error. Turn it off if you see problems.",
 			"type": "bool",
-			"default": true
+			"default": false
 		}
 	}
 }
