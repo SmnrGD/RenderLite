@@ -1,4 +1,5 @@
 #include <Geode/Geode.hpp>
+#include <Geode/ui/Notification.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/modify/LoadingLayer.hpp>
@@ -9,6 +10,7 @@
 #include <algorithm>
 #include <cctype>
 #include <chrono>
+#include <cstdlib>
 #include <cwchar>
 #include <filesystem>
 #include <fstream>
@@ -498,8 +500,67 @@ static void applyLogicFps(int fps) {
     CCApplication::sharedApplication()->setAnimationInterval(1.0 / static_cast<double>(fps));
 }
 
+// ---------- Draw divide hotkey ----------
+
+#ifdef GEODE_IS_WINDOWS
+
+static int s_hotkeyVk = 0;          // 0 = no hotkey
+static bool s_hotkeyWasDown = false;
+
+static int keyNameToVk(std::string const& name) {
+    if (name == "None") return 0;
+    if (name == "Insert") return VK_INSERT;
+    if (name == "Home") return VK_HOME;
+    if (name == "End") return VK_END;
+    if (name == "Page Up") return VK_PRIOR;
+    if (name == "Page Down") return VK_NEXT;
+    if (name == "Pause") return VK_PAUSE;
+    if (name == "Scroll Lock") return VK_SCROLL;
+    if (name.size() >= 2 && name[0] == 'F') {
+        int n = std::atoi(name.c_str() + 1);
+        if (n >= 1 && n <= 12) return VK_F1 + (n - 1);
+    }
+    return 0;
+}
+
+static bool gameWindowFocused() {
+    HWND front = GetForegroundWindow();
+    if (!front) return false;
+    DWORD pid = 0;
+    GetWindowThreadProcessId(front, &pid);
+    return pid == GetCurrentProcessId();
+}
+
+static void toggleDrawDivide() {
+    Loader::get()->queueInMainThread([] {
+        auto mod = Mod::get();
+        bool now = !mod->getSettingValue<bool>("draw-divide");
+        mod->setSettingValue<bool>("draw-divide", now);
+        Notification::create(
+            now ? "Draw divide: ON" : "Draw divide: OFF",
+            now ? NotificationIcon::Success : NotificationIcon::None,
+            1.5f
+        )->show();
+    });
+}
+
+static void pollHotkey() {
+    if (s_hotkeyVk == 0) return;
+    bool down = (GetAsyncKeyState(s_hotkeyVk) & 0x8000) != 0;
+    if (down && !s_hotkeyWasDown && gameWindowFocused()) {
+        toggleDrawDivide();
+    }
+    s_hotkeyWasDown = down;
+}
+
+#endif // GEODE_IS_WINDOWS
+
 class $modify(DrawDivideDirector, CCDirector) {
     void drawScene() {
+#ifdef GEODE_IS_WINDOWS
+        pollHotkey();
+#endif
+
         // Keep the logic FPS applied, in case the game changes it
         if (s_logicFps > 0 && (++s_frameCounter % 120) == 0) {
             applyLogicFps(s_logicFps);
@@ -609,6 +670,11 @@ $on_mod(Loaded) {
     });
 
 #ifdef GEODE_IS_WINDOWS
+    s_hotkeyVk = keyNameToVk(mod->getSettingValue<std::string>("draw-divide-key"));
+    listenForSettingChanges<std::string>("draw-divide-key", [](std::string value) {
+        s_hotkeyVk = keyNameToVk(value);
+    });
+
     applyPriority(mod->getSettingValue<std::string>("priority-level"));
     applyThrottling(mod->getSettingValue<std::string>("throttling-mode"));
     applyTimer(mod->getSettingValue<std::string>("timer-resolution"));
