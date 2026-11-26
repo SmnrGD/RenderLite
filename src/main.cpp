@@ -2,8 +2,13 @@
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/modify/LoadingLayer.hpp>
+#include <Geode/modify/CCDirector.hpp>
+#include <Geode/modify/CCNode.hpp>
+#include <Geode/modify/CCEGLView.hpp>
 
+#include <algorithm>
 #include <cctype>
+#include <chrono>
 #include <cwchar>
 #include <filesystem>
 #include <fstream>
@@ -422,7 +427,7 @@ static void applyGpuPreference(std::string const& choice) {
 
 // ---------- Anti-crash ----------
 
-static bool s_antiCrash = true;
+static bool s_antiCrash = false;
 static int s_faults = 0;
 
 static void reportFault(int count) {
@@ -454,6 +459,93 @@ class $modify(SafePlayLayer, PlayLayer) {
     }
 };
 
+// ---------- Draw divide ----------
+// The game logic keeps running every frame, but the picture is only drawn
+// at the render FPS. On the frames in between, drawing the scene and showing
+// the picture on screen are skipped.
+
+static bool s_drawDivide = false;
+static int s_renderFps = 0;   // 0 = match the monitor
+static int s_logicFps = 0;    // 0 = do not change
+static bool s_skipRender = false;
+static double s_accum = 0.0;
+static double s_targetInterval = 1.0 / 60.0;
+static int s_frameCounter = 0;
+static std::chrono::steady_clock::time_point s_lastFrame = std::chrono::steady_clock::now();
+
+static int monitorRefreshRate() {
+#ifdef GEODE_IS_WINDOWS
+    DEVMODEA mode{};
+    mode.dmSize = sizeof(mode);
+    if (EnumDisplaySettingsA(nullptr, ENUM_CURRENT_SETTINGS, &mode) &&
+        mode.dmDisplayFrequency > 1) {
+        return static_cast<int>(mode.dmDisplayFrequency);
+    }
+#endif
+    return 60;
+}
+
+static void updateTargetInterval() {
+    int fps = s_renderFps > 0 ? s_renderFps : monitorRefreshRate();
+    if (fps < 10) fps = 10;
+    s_targetInterval = 1.0 / static_cast<double>(fps);
+}
+
+static void applyLogicFps(int fps) {
+    if (fps <= 0) return; // 0 = leave the game's own setting alone
+    if (fps < 30) fps = 30;
+    if (fps > 200) fps = 200;
+    CCApplication::sharedApplication()->setAnimationInterval(1.0 / static_cast<double>(fps));
+}
+
+class $modify(DrawDivideDirector, CCDirector) {
+    void drawScene() {
+        // Keep the logic FPS applied, in case the game changes it
+        if (s_logicFps > 0 && (++s_frameCounter % 120) == 0) {
+            applyLogicFps(s_logicFps);
+        }
+
+        if (s_drawDivide) {
+            auto now = std::chrono::steady_clock::now();
+            double dt = std::chrono::duration<double>(now - s_lastFrame).count();
+            s_lastFrame = now;
+            if (dt > 0.25) dt = 0.25;
+            s_accum += dt;
+
+            // Draw when about one full render frame has passed
+            if (s_accum >= s_targetInterval * 0.85) {
+                s_accum -= s_targetInterval;
+                if (s_accum < 0.0 || s_accum > s_targetInterval) s_accum = 0.0;
+                s_skipRender = false;
+            } else {
+                s_skipRender = true;
+            }
+        } else {
+            s_skipRender = false;
+        }
+
+        CCDirector::drawScene();
+        s_skipRender = false;
+    }
+};
+
+class $modify(DrawDivideNode, CCNode) {
+    void visit() {
+        if (s_skipRender) {
+            auto scene = CCDirector::sharedDirector()->getRunningScene();
+            if (static_cast<CCNode*>(this) == static_cast<CCNode*>(scene)) return;
+        }
+        CCNode::visit();
+    }
+};
+
+class $modify(DrawDivideView, CCEGLView) {
+    void swapBuffers() {
+        if (s_skipRender) return;
+        CCEGLView::swapBuffers();
+    }
+};
+
 // ---------- Fast loading ----------
 
 static double s_originalInterval = 0.0;
@@ -477,6 +569,7 @@ class $modify(RLMenuLayer, MenuLayer) {
             CCApplication::sharedApplication()->setAnimationInterval(s_originalInterval);
             s_originalInterval = 0.0;
         }
+        applyLogicFps(s_logicFps);
 
 #ifdef GEODE_IS_WINDOWS
         // Catch programs that were started after the game
@@ -496,6 +589,25 @@ $on_mod(Loaded) {
         s_antiCrash = value;
     });
 
+    s_drawDivide = mod->getSettingValue<bool>("draw-divide");
+    s_renderFps = static_cast<int>(mod->getSettingValue<int64_t>("render-fps"));
+    s_logicFps = static_cast<int>(mod->getSettingValue<int64_t>("logic-fps"));
+    updateTargetInterval();
+
+    listenForSettingChanges<bool>("draw-divide", [](bool value) {
+        s_drawDivide = value;
+        s_accum = 0.0;
+        s_lastFrame = std::chrono::steady_clock::now();
+    });
+    listenForSettingChanges<int64_t>("render-fps", [](int64_t value) {
+        s_renderFps = static_cast<int>(value);
+        updateTargetInterval();
+    });
+    listenForSettingChanges<int64_t>("logic-fps", [](int64_t value) {
+        s_logicFps = static_cast<int>(value);
+        applyLogicFps(s_logicFps);
+    });
+
 #ifdef GEODE_IS_WINDOWS
     applyPriority(mod->getSettingValue<std::string>("priority-level"));
     applyThrottling(mod->getSettingValue<std::string>("throttling-mode"));
@@ -508,3 +620,23 @@ $on_mod(Loaded) {
     listenForSettingChanges<std::string>("priority-level", [](std::string value) {
         applyPriority(value);
     });
+    listenForSettingChanges<std::string>("throttling-mode", [](std::string value) {
+        applyThrottling(value);
+    });
+    listenForSettingChanges<std::string>("timer-resolution", [](std::string value) {
+        applyTimer(value);
+    });
+    listenForSettingChanges<std::string>("power-plan", [](std::string value) {
+        applyPowerPlan(value);
+    });
+    listenForSettingChanges<std::string>("background-priority", [](std::string value) {
+        applyBackground(value, true);
+    });
+    listenForSettingChanges<bool>("focus-mode", [](bool value) {
+        applyFocusMode(value);
+    });
+    listenForSettingChanges<std::string>("gpu-preference", [](std::string value) {
+        applyGpuPreference(value);
+    });
+#endif
+}
