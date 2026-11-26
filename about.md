@@ -1,6 +1,6 @@
 # <cg>RenderLite</c>
 
-<cy>A performance toolkit for Geometry Dash.</c>
+<cy>A performance toolkit for Geometry Dash Windows.</c>
 
 Get more out of your PC while you play. Every feature can be turned on or off, and most have an adjustable strength. The strongest option is always named in the setting's description.
 
