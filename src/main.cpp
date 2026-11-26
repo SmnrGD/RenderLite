@@ -496,7 +496,7 @@ static void updateTargetInterval() {
 static void applyLogicFps(int fps) {
     if (fps <= 0) return; // 0 = leave the game's own setting alone
     if (fps < 30) fps = 30;
-    if (fps > 200) fps = 200;
+    if (fps > 480) fps = 480;
     CCApplication::sharedApplication()->setAnimationInterval(1.0 / static_cast<double>(fps));
 }
 
