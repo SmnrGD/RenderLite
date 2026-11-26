@@ -1,6 +1,6 @@
 # <cg>RenderLite</c>
 
-<cy>A performance toolkit for Geometry Dash.</c>
+<cy>A performance toolkit for Geometry Dash Windows.</c>
 
 Get more out of your PC while you play. Every feature can be turned on or off, and most have an adjustable strength. The strongest option is always named in the setting's description.
 
@@ -32,7 +32,7 @@ Draws the picture at a lower frame rate than the game logic. The game still runs
 
 ## <cy>Good to know</c>
 
-- Draw divide works best with the FPS unlocked. Turn on Unlock FPS in the game's graphics settings, or use the Game logic FPS setting.
+- Draw divide works best with the FPS unlocked.
 - The hotkey only works while the game window is in front. If another mod already uses the same key, pick a different one.
 - These options do not raise your FPS directly. They help most when other programs are using your CPU or when Windows is limiting the game.
 - Anti-crash cannot stop every crash, and the game may act oddly after an error.
