@@ -78,15 +78,15 @@
 			"type": "int",
 			"default": 0,
 			"min": 0,
-			"max": 240
+			"max": 480
 		},
 		"logic-fps": {
 			"name": "Game logic FPS",
-			"description": "How fast the game logic runs (physics and input). Maximum 200.\n\n0 = do not change (use the game's own FPS setting).\nStrongest: 200. It gives the lowest input delay. Use it together with Draw divide so the picture stays light.",
+			"description": "How fast the game logic runs (physics and input). Maximum 480.\n\n0 = do not change (use the game's own FPS setting).\nStrongest: 200. It gives the lowest input delay. Use it together with Draw divide so the picture stays light.",
 			"type": "int",
 			"default": 0,
 			"min": 0,
-			"max": 200
+			"max": 480
 		},
 		"fast-loading": {
 			"name": "Fast loading",
