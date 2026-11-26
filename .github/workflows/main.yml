@@ -16,7 +16,7 @@ jobs:
       - name: Bump version
         shell: bash
         run: |
-          sed -i -E 's/"version": *"[^"]*"/"version": "v1.0.${{ github.run_number }}"/' mod.json
+          sed -i -E 's/"version": *"[^"]*"/"version": "v1.2.${{ github.run_number }}"/' mod.json
           grep '"version"' mod.json
 
       - name: Build the mod
@@ -32,7 +32,17 @@ jobs:
     steps:
       - uses: geode-sdk/build-geode-mod/combine@main
         id: build
+
+      - name: Rename the mod file
+        shell: bash
+        run: |
+          cd "${{ steps.build.outputs.build-output }}"
+          for f in *.geode; do
+            mv "$f" "RenderLite-v1.2.${{ github.run_number }}.geode"
+          done
+          ls
+
       - uses: actions/upload-artifact@v4
         with:
-          name: Build Output
+          name: RenderLite-v1.2.${{ github.run_number }}
           path: ${{ steps.build.outputs.build-output }}
