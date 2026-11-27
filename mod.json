@@ -7,7 +7,7 @@
 	"name": "RenderLite",
 	"version": "v1.2.0",
 	"developer": "SmnrGD",
-	"description": "Performance toolkit for Geometry Dash: draw divide, process priority, power plan, focus mode, GPU preference, fast loading and anti-crash.",
+	"description": "Performance toolkit for Geometry Dash: draw divide, process priority, power plan, fast loading and more.",
 	"repository": "https://github.com/mikhailrasanen1304-dot/RenderLite",
 	"tags": ["performance", "utility", "universal"],
 	"settings": {
@@ -59,6 +59,13 @@
 			"default": "No change",
 			"one-of": ["No change", "High performance GPU", "Windows default"]
 		},
+		"title-bar": {
+			"name": "Dark window title bar",
+			"description": "Makes the title bar of the game window dark instead of white when you play in windowed mode. It does nothing in fullscreen.\n\nStrongest: Pure black (Windows 11 only, Windows 10 shows Dark instead).\nOptions: Off (no change), Dark (medium), Pure black (strongest).",
+			"type": "string",
+			"default": "Pure black",
+			"one-of": ["Off", "Dark", "Pure black"]
+		},
 		"draw-divide-key": {
 			"name": "Draw divide hotkey",
 			"description": "Press this key while playing to switch Draw divide on or off. A small message shows the new state. It only works while the game window is in front. Pick None to turn the hotkey off.\n\nOptions: None, F1 to F12, Insert, Home, End, Page Up, Page Down, Pause, Scroll Lock. Default: F8.",
@@ -74,7 +81,7 @@
 		},
 		"render-fps": {
 			"name": "Render FPS",
-			"description": "How many pictures per second are drawn while Draw divide is on.\n\n0 = match your monitor's refresh rate (recommended).\nStrongest: a low number such as 30. It saves the most GPU power, but the picture looks choppier.",
+			"description": "How many pictures per second are drawn while Draw divide is on. Maximum 480.\n\n0 = match your monitor's refresh rate (recommended).\nStrongest: a low number such as 30. It saves the most GPU power, but the picture looks choppier.",
 			"type": "int",
 			"default": 0,
 			"min": 0,
@@ -82,7 +89,7 @@
 		},
 		"logic-fps": {
 			"name": "Game logic FPS",
-			"description": "How fast the game logic runs (physics and input). Maximum 480.\n\n0 = do not change (use the game's own FPS setting).\nStrongest: 200. It gives the lowest input delay. Use it together with Draw divide so the picture stays light.",
+			"description": "How fast the game logic runs (physics and input). Maximum 480.\n\n0 = do not change (use the game's own FPS setting).\nStrongest: 480. It gives the lowest input delay, but it uses the most CPU. Use it together with Draw divide so the picture stays light.",
 			"type": "int",
 			"default": 0,
 			"min": 0,
