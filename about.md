@@ -13,7 +13,7 @@ Draws the picture at a lower frame rate than the game logic. The game still runs
 - **Draw divide:** turn it on or off. <cy>It only has an effect when the game runs at a higher FPS than the Render FPS.</c>
 - **Draw divide hotkey:** press a key while playing to switch Draw divide on or off, with a small message on screen. <cg>Default: F8.</c> Pick None to turn it off.
 - **Render FPS:** 0 matches your monitor's refresh rate. <cg>Strongest saving: a low number such as 30.</c>
-- **Game logic FPS:** how fast physics and input run. <cg>Strongest: 200.</c> 0 leaves the game's own setting alone.
+- **Game logic FPS:** how fast physics and input run. <cg>Strongest: 480.</c> 0 leaves the game's own setting alone.
 
 ## <cg>System settings</c>
 
