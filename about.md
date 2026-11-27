@@ -1,6 +1,6 @@
 # <cg>RenderLite</c>
 
-<cy>A performance toolkit for Geometry Dash Windows.</c>
+<cy>A performance toolkit for Geometry Dash.</c>
 
 Get more out of your PC while you play. Every feature can be turned on or off, and most have an adjustable strength. The strongest option is always named in the setting's description.
 
@@ -12,7 +12,7 @@ Draws the picture at a lower frame rate than the game logic. The game still runs
 
 - **Draw divide:** turn it on or off. <cy>It only has an effect when the game runs at a higher FPS than the Render FPS.</c>
 - **Draw divide hotkey:** press a key while playing to switch Draw divide on or off, with a small message on screen. <cg>Default: F8.</c> Pick None to turn it off.
-- **Render FPS:** 0 matches your monitor's refresh rate. <cg>Strongest saving: a low number such as 30.</c>
+- **Render FPS:** how many pictures per second are drawn. 0 matches your monitor's refresh rate. <cg>Strongest saving: a low number such as 30.</c> Maximum 480.
 - **Game logic FPS:** how fast physics and input run. <cg>Strongest: 480.</c> 0 leaves the game's own setting alone.
 
 ## <cg>System settings</c>
@@ -24,6 +24,7 @@ Draws the picture at a lower frame rate than the game logic. The game still runs
 - **Background apps:** lowers the priority of your other programs so the game gets most of the CPU. <cg>Strongest: Strongest.</c> They are restored when the game closes.
 - **Focus mode:** hides Windows notification pop-ups while you play.
 - **GPU preference:** picks which graphics card the game uses. <cg>Strongest: High performance GPU.</c> <cy>Restart required.</c>
+- **Dark window title bar:** makes the window's title bar dark instead of white in windowed mode. <cg>Strongest: Pure black</c> (Windows 11 only, Windows 10 shows Dark).
 
 ## <cg>Other settings</c>
 
@@ -34,6 +35,8 @@ Draws the picture at a lower frame rate than the game logic. The game still runs
 
 - Draw divide works best with the FPS unlocked.
 - The hotkey only works while the game window is in front. If another mod already uses the same key, pick a different one.
+- A very high Game logic FPS uses a lot of CPU. If the game stutters, lower it.
+- The dark title bar only shows in windowed mode. In fullscreen and borderless mode there is no title bar to color.
 - These options do not raise your FPS directly. They help most when other programs are using your CPU or when Windows is limiting the game.
 - Anti-crash cannot stop every crash, and the game may act oddly after an error.
 - Fast loading works best with V-Sync off. It cannot speed up Geode's own loading.
