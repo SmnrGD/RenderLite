@@ -36,6 +36,7 @@ struct RLPowerThrottlingState {
 
 using SetProcessInformationFn = BOOL(WINAPI*)(HANDLE, int, LPVOID, DWORD);
 using TimePeriodFn = UINT(WINAPI*)(UINT);
+using DwmSetWindowAttributeFn = HRESULT(WINAPI*)(HWND, DWORD, LPCVOID, DWORD);
 
 // Runs a command hidden and returns everything it printed
 static std::string runCommand(std::string const& cmd) {
@@ -425,6 +426,73 @@ static void applyGpuPreference(std::string const& choice) {
     RegCloseKey(key);
 }
 
+// ---------- Dark window title bar ----------
+
+struct FindWindowData {
+    DWORD pid;
+    HWND result;    // a window with a title bar
+    HWND fallback;  // any other game window (for example borderless)
+};
+
+static BOOL CALLBACK findGameWindow(HWND hwnd, LPARAM lParam) {
+    auto data = reinterpret_cast<FindWindowData*>(lParam);
+
+    DWORD pid = 0;
+    GetWindowThreadProcessId(hwnd, &pid);
+    if (pid != data->pid) return TRUE;
+    if (!IsWindowVisible(hwnd)) return TRUE;
+    if (GetWindow(hwnd, GW_OWNER) != nullptr) return TRUE;
+
+    LONG style = GetWindowLongW(hwnd, GWL_STYLE);
+    if ((style & WS_CAPTION) == WS_CAPTION) {
+        data->result = hwnd;
+        return FALSE;
+    }
+    if (!data->fallback) data->fallback = hwnd;
+    return TRUE;
+}
+
+static std::string s_titleMode = "Pure black";
+static HWND s_titleHwnd = nullptr;
+static std::string s_titleApplied;
+
+static void applyTitleBar() {
+    // Do nothing until the setting has been changed away from Off
+    if (s_titleMode == "Off" && s_titleApplied.empty()) return;
+
+    FindWindowData data{GetCurrentProcessId(), nullptr, nullptr};
+    EnumWindows(findGameWindow, reinterpret_cast<LPARAM>(&data));
+    HWND target = data.result ? data.result : data.fallback;
+    if (!target) return;
+
+    // Already done for this window and this setting
+    if (target == s_titleHwnd && s_titleMode == s_titleApplied) return;
+
+    HMODULE dwm = LoadLibraryA("dwmapi.dll");
+    if (!dwm) return;
+    auto fn = reinterpret_cast<DwmSetWindowAttributeFn>(
+        reinterpret_cast<void*>(GetProcAddress(dwm, "DwmSetWindowAttribute"))
+    );
+    if (!fn) return;
+
+    BOOL dark = (s_titleMode == "Off") ? FALSE : TRUE;
+    // 20 = DWMWA_USE_IMMERSIVE_DARK_MODE (newer Windows 10 and 11), 19 on older builds
+    if (FAILED(fn(target, 20, &dark, sizeof(dark)))) {
+        fn(target, 19, &dark, sizeof(dark));
+    }
+
+    // 35 = DWMWA_CAPTION_COLOR (Windows 11). 0xFFFFFFFF = back to the default color
+    COLORREF color = (s_titleMode == "Pure black") ? 0x00000000 : 0xFFFFFFFF;
+    fn(target, 35, &color, sizeof(color));
+
+    // Make Windows redraw the title bar right away
+    SetWindowPos(target, nullptr, 0, 0, 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+
+    s_titleHwnd = target;
+    s_titleApplied = s_titleMode;
+}
+
 #endif // GEODE_IS_WINDOWS
 
 // ---------- Anti-crash ----------
@@ -474,6 +542,7 @@ static double s_accum = 0.0;
 static double s_targetInterval = 1.0 / 60.0;
 static int s_frameCounter = 0;
 static std::chrono::steady_clock::time_point s_lastFrame = std::chrono::steady_clock::now();
+static std::chrono::steady_clock::time_point s_lastTitleCheck = std::chrono::steady_clock::now();
 
 static int monitorRefreshRate() {
 #ifdef GEODE_IS_WINDOWS
@@ -559,6 +628,14 @@ class $modify(DrawDivideDirector, CCDirector) {
     void drawScene() {
 #ifdef GEODE_IS_WINDOWS
         pollHotkey();
+
+        // Every two seconds, check that the title bar color is applied
+        // (the window is rebuilt when you switch between fullscreen and windowed)
+        auto checkNow = std::chrono::steady_clock::now();
+        if (checkNow - s_lastTitleCheck > std::chrono::seconds(2)) {
+            s_lastTitleCheck = checkNow;
+            applyTitleBar();
+        }
 #endif
 
         // Keep the logic FPS applied, in case the game changes it
@@ -673,6 +750,13 @@ $on_mod(Loaded) {
     s_hotkeyVk = keyNameToVk(mod->getSettingValue<std::string>("draw-divide-key"));
     listenForSettingChanges<std::string>("draw-divide-key", [](std::string value) {
         s_hotkeyVk = keyNameToVk(value);
+    });
+
+    // The title bar is applied from the draw loop once the window exists
+    s_titleMode = mod->getSettingValue<std::string>("title-bar");
+    listenForSettingChanges<std::string>("title-bar", [](std::string value) {
+        s_titleMode = value;
+        applyTitleBar();
     });
 
     applyPriority(mod->getSettingValue<std::string>("priority-level"));
