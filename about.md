@@ -11,7 +11,7 @@ Source and updates: [github.com/mikhailrasanen1304-dot/RenderLite](https://githu
 Draws the picture at a lower frame rate than the game logic. The game still runs physics and reads your clicks at the full FPS, but the graphics card only draws the screen at the Render FPS. That means a lighter load for your GPU and the low input delay of a high FPS. The idea comes from the Draw Divide mod by matcool.
 
 - **Draw divide:** turn it on or off. <cy>It only has an effect when the game runs at a higher FPS than the Render FPS.</c>
-- **Draw divide hotkey:** press a key while playing to switch Draw divide on or off, with a small message on screen. <cg>Default: F8.</c> Pick None to turn it off.
+- **Draw divide hotkey:** press a key while playing to switch Draw divide on or off, with a small message on screen. <cg>Default: F8.</c>
 - **Render FPS:** how many pictures per second are drawn. 0 matches your monitor's refresh rate. <cg>Strongest saving: a low number such as 30.</c> Maximum 480.
 - **Game logic FPS:** how fast physics and input run. <cg>Strongest: 480.</c> 0 leaves the game's own setting alone.
 
