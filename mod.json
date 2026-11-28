@@ -54,10 +54,11 @@
 		},
 		"gpu-preference": {
 			"name": "GPU preference",
-			"description": "Tells Windows which graphics card the game should use. Mostly useful on laptops with two graphics cards. Restart Geometry Dash after changing this setting.\n\nStrongest: High performance GPU.\nOptions: No change (default), High performance GPU (strongest), Windows default (removes the override).",
+			"description": "Tells Windows which graphics card the game should use. Mostly useful on laptops with two graphics cards. This needs a restart, and Geode will show a Restart button after you change it.\n\nStrongest: High performance GPU.\nOptions: No change (default), High performance GPU (strongest), Windows default (removes the override).",
 			"type": "string",
 			"default": "No change",
-			"one-of": ["No change", "High performance GPU", "Windows default"]
+			"one-of": ["No change", "High performance GPU", "Windows default"],
+			"requires-restart": true
 		},
 		"title-bar": {
 			"name": "Dark window title bar",
@@ -97,9 +98,10 @@
 		},
 		"fast-loading": {
 			"name": "Fast loading",
-			"description": "Speeds up the Geometry Dash loading screen by letting it run at the highest possible frame rate. It works best when V-Sync is off in the game's graphics settings. It cannot speed up Geode's own loading. Restart Geometry Dash after changing this setting.",
+			"description": "Speeds up the Geometry Dash loading screen by letting it run at the highest possible frame rate. It works best when V-Sync is off in the game's graphics settings. It cannot speed up Geode's own loading. This needs a restart, and Geode will show a Restart button after you change it.",
 			"type": "bool",
-			"default": true
+			"default": true,
+			"requires-restart": true
 		},
 		"anti-crash": {
 			"name": "Anti-crash (experimental)",
