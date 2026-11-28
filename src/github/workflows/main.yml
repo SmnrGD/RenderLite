@@ -10,13 +10,22 @@ jobs:
   build-geode-mod:
     name: Windows
     runs-on: windows-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Bump version
+      - name: Read version from changelog
+        id: ver
         shell: bash
         run: |
-          sed -i -E 's/"version": *"[^"]*"/"version": "v1.0.${{ github.run_number }}"/' mod.json
+          VERSION=$(grep -m1 -oE '^# v?[0-9]+\.[0-9]+\.[0-9]+' changelog.md | sed -E 's/^# v?//' | tr -d '\r')
+          if [ -z "$VERSION" ]; then
+            echo "No version heading found at the top of changelog.md (example: # v1.3.0)"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          sed -i -E "s/\"version\": *\"[^\"]*\"/\"version\": \"v$VERSION\"/" mod.json
           grep '"version"' mod.json
 
       - name: Build the mod
@@ -32,7 +41,17 @@ jobs:
     steps:
       - uses: geode-sdk/build-geode-mod/combine@main
         id: build
+
+      - name: Rename the mod file
+        shell: bash
+        run: |
+          cd "${{ steps.build.outputs.build-output }}"
+          for f in *.geode; do
+            mv "$f" "RenderLite-v${{ needs.build-geode-mod.outputs.version }}.geode"
+          done
+          ls
+
       - uses: actions/upload-artifact@v4
         with:
-          name: Build Output
+          name: RenderLite-v${{ needs.build-geode-mod.outputs.version }}
           path: ${{ steps.build.outputs.build-output }}
