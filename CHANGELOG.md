@@ -1,5 +1,8 @@
  # RenderLite Changelog
 
+# v1.3.1
+* Settings are now grouped: performance settings first, other settings below
+
 # v1.3.0
 * Settings that need a restart now show a Restart button
 * Maximum Render FPS and Game logic FPS is now 480
